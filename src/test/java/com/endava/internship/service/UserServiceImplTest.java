@@ -138,8 +138,9 @@ public class UserServiceImplTest {
         final User user2 = new User(2L, "Greg", "Jonson", 30, singletonList(Privilege.UPDATE));
         final User user3 = new User(3L, "Alex", "Smith", 13, singletonList(Privilege.DELETE));
 
+
         final Optional<String> mostFrequentLastName =
-                userService.getMostFrequentLastName(asList(user1, user2, user3));
+                userService.getMostFrequentLastName(asList(user1, user2,user3));
 
         assertThat(mostFrequentLastName).isEmpty();
     }

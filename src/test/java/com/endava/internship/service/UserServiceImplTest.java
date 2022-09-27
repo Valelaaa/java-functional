@@ -98,23 +98,21 @@ public class UserServiceImplTest {
 
     @Test
     void shouldReturnAverageAgeForUsers() {
-        final int expectedAverage = 23;
+        final Optional<Double> expectedAverage = Optional.of(23.0);
 
         final User user1 = new User(1L, "John", "Doe", 26, singletonList(Privilege.UPDATE));
         final User user2 = new User(2L, "Greg", "Smith", 30, singletonList(Privilege.UPDATE));
         final User user3 = new User(3L, "Alex", "Smith", 13, singletonList(Privilege.DELETE));
 
-        final double averageAge = userService.getAverageAgeForUsers(asList(user1, user2, user3));
-
+        final Optional<Double> averageAge = userService.getAverageAgeForUsers(asList(user1, user2, user3));
         assertThat(averageAge).isEqualTo(expectedAverage);
     }
 
     @Test
-    void shouldReturnMinusOneInsteadOfAverageForEmptyList() {
-        final int expectedAverage = -1;
-        final double averageAge = userService.getAverageAgeForUsers(emptyList());
+    void shouldReturnEmptyInsteadOfAverageForEmptyList() {
+        final Optional<Double> averageAge = userService.getAverageAgeForUsers(emptyList());
 
-        assertThat(averageAge).isEqualTo(expectedAverage);
+        assertThat(averageAge).isEqualTo(Optional.empty());
     }
 
     @Test
@@ -133,10 +131,38 @@ public class UserServiceImplTest {
     }
 
     @Test
+    void shouldReturnOptionalEmptyIfThereAreNoDistinctNumberOfLastNames() {
+        final User user1 = new User(1L, "John", "Doe", 26, singletonList(Privilege.UPDATE));
+        final User user2 = new User(2L, "Greg", "Jonson", 30, singletonList(Privilege.UPDATE));
+        final User user3 = new User(3L, "Alex", "Smith", 13, singletonList(Privilege.DELETE));
+        final User user4 = new User(2L, "Grega", "Smith", 30, singletonList(Privilege.UPDATE));
+        final User user5 = new User(3L, "Alexa", "Jonson", 13, singletonList(Privilege.DELETE));
+
+        final Optional<String> mostFrequentLastName =
+                userService.getMostFrequentLastName(asList(user1, user2, user3, user4, user5));
+
+        assertThat(mostFrequentLastName).isEmpty();
+    }
+
+    @Test
+    void shouldReturnTheOnlyOneUserName() {
+        final String mostFrequentName = "Doe";
+
+        final User user1 = new User(1L, "John", "Doe", 26, singletonList(Privilege.UPDATE));
+
+        final Optional<String> mostFrequentLastName =
+                userService.getMostFrequentLastName(singletonList(user1));
+
+        assertThat(mostFrequentLastName)
+                .hasValueSatisfying(name -> assertThat(name).isEqualToIgnoringCase(mostFrequentName));
+    }
+
+    @Test
     void shouldReturnOptionalEmptyIfThereAreDistinctNumberOfLastNames() {
         final User user1 = new User(1L, "John", "Doe", 26, singletonList(Privilege.UPDATE));
         final User user2 = new User(2L, "Greg", "Jonson", 30, singletonList(Privilege.UPDATE));
         final User user3 = new User(3L, "Alex", "Smith", 13, singletonList(Privilege.DELETE));
+
 
         final Optional<String> mostFrequentLastName =
                 userService.getMostFrequentLastName(asList(user1, user2, user3));

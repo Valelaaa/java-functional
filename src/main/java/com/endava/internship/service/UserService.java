@@ -64,7 +64,7 @@ public interface UserService {
      * @param users list of user
      * @return return average age for users or -1 if empty list is passed
      */
-    double getAverageAgeForUsers(List<User> users);
+    Optional<Double> getAverageAgeForUsers(List<User> users);
 
 
     /**

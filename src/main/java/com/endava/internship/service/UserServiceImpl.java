@@ -12,6 +12,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static com.endava.internship.domain.Privilege.UPDATE;
 import static java.util.Comparator.comparingInt;
 import static java.util.Comparator.reverseOrder;
 import static java.util.stream.Collectors.joining;
@@ -45,15 +46,14 @@ public class UserServiceImpl implements UserService {
     public List<Privilege> getAllDistinctPrivileges(final List<User> users) {
         return users.stream()
                 .flatMap(user -> user.getPrivileges().stream())
-                .distinct().
-                collect(toList());
+                .distinct().collect(toList());
     }
 
     @Override
     public Optional<User> getUpdateUserWithAgeHigherThan(final List<User> users, final int age) {
         return users.stream()
                 .filter(user -> user.getAge() > age && user.getPrivileges()
-                        .contains(Privilege.UPDATE)).findFirst();
+                        .contains(UPDATE)).findFirst();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<Double> getAverageAgeForUsers(final List<User> users) {
-        DoubleSummaryStatistics doubleSummaryStatistics = users.stream()
+        final DoubleSummaryStatistics doubleSummaryStatistics = users.stream()
                 .collect(summarizingDouble(User::getAge));
         return (doubleSummaryStatistics.getCount() == 0) ? Optional.empty() : Optional.of(doubleSummaryStatistics.getAverage());
     }
@@ -73,15 +73,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<String> getMostFrequentLastName(final List<User> users) {
         return getNumberOfLastNames(users)
-                .entrySet().stream()
+                .entrySet()
+                .stream()
                 .collect(groupingBy(Map.Entry::getValue))
-                .entrySet().stream()
+                .entrySet()
+                .stream()
                 .max(Map.Entry.comparingByKey())
                 .map(Map.Entry::getValue)
                 .filter(list -> list.size() < 2)
                 .map(list -> list.get(0).getKey());
-
-
     }
 
     @Override
